@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-
+from add_user.views import add_user_fun
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^add_user/', add_user_fun),
 ]
