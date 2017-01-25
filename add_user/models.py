@@ -15,7 +15,7 @@ DEG_CHOICES = (
 
 class user_data(models.Model):
 	id=models.AutoField(primary_key=True)
-	name=models.CharField(max_length=20,blank=False,null=True)
+	name=models.CharField(max_length=20,blank=True,null=True)
 	user_name=models.CharField(max_length=20,blank=False,null=False)
 	password=models.CharField(max_length=1200,blank=False,null=False,default=hashlib.sha512('abcd').hexdigest().lower())
 	fcm=models.CharField(max_length=400,null=True,blank=True)
@@ -28,13 +28,15 @@ class tsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
 	active=models.BooleanField(default=True)
 	def __unicode__(self):
-		return str(self.name)
+		return str(self.user_id)
 	#user_id = user_data.objects.filter(designation='None')
 
 class dsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
 	tsm=models.ForeignKey(tsm_data,to_field='id')
 	active=models.BooleanField(default=True)
+	def __unicode__(self):
+		return str(self.user_id)
 
 class dse_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')

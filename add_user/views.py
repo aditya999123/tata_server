@@ -9,6 +9,37 @@ user_type_deg={0:'TSM',1:'DSM',2:'DSE'}
 
 def add_user_fun(request):
 	respone={}
+	#####################################################################################
+	if request.method=='GET':
+		try:
+			access_token= request.GET.get("access_token")
+			print "access_token :",access_token
+			if access_token!=None:
+				#print "key:",str(KEYS_internal.objects.get(key='jwt').value)
+				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
+				try:
+					user_designation=user_data.objects.get(uname=json_decoded['uname']).designation
+					if(user_designation==0):
+						tmp_array=[]
+						for o in dsm_data.objects.all():
+							tmp_json={}
+							tmp_json['name']=o.user_id
+							tmp_json['id']=o.id
+							tmp_array.append(tmp_json)
+						respone['dsm_list']=tmp_array
+					else:
+						respone['success']=False
+						respone['insufficient access']
+				except Exception,e:
+					respone['success']=False
+					respone['message']=str(e)
+			else:
+				respone['success']=False
+				respone['message']="No Access token recieved"
+		except Exception,e:
+			respone['success']=False
+			respone['message']=str(e)
+	####################################33333#############################################
 	if request.method=='POST':
 		try:
 			access_token= request.POST.get("access_token")
@@ -17,8 +48,11 @@ def add_user_fun(request):
 				#print "key:",str(KEYS_internal.objects.get(key='jwt').value)
 				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 				try:
-					user_designation=user_data.objects.get(uname=json_decoded['uname']).designation
+					
+					user=user_data.objects.get(uname=json_decoded['uname'])
+					user_designation=user.designation
 					try:
+
 						user_type_make=int(request.POST.get("user_type"))
 						print "user to be added deg",user_type
 
@@ -30,12 +64,20 @@ def add_user_fun(request):
 								name=request.POST.get('name')
 								uname=request.POST.get('uname')
 								print "name and uname recieved",name,uname
-								if(user_type_make==1):
-									new_user=user_data.objects.create(name=name,uname=uname)
-									dsm_data.objects.create(user_id=new_user.id)
-								if(user_type_make==2):
-									new_user=user_data.objects.create(name=name,uname=uname)
-									dse_data.objects.create(user_id=new_user.id)
+								new_user,created=user_data.objects.get_or_create(uname=uname)
+								if created==True:
+									new_user.name=name
+									new_user.save()
+									if(user_type_make==1):
+										dsm_data.objects.create(user_id=new_user,tsm=user)
+									if(user_type_make==2):
+										dse_data.objects.create(user_id=new_user,dsm=user)
+									respone['success']=True
+									respone['password']='abcd'
+									respone['message']='Successful'
+								else:
+									respone['success']=False
+									respone['message']='user with this username already exsists'
 							except Exception,e:
 								respone['success']=False
 								respone['message']=str(e)
