@@ -70,8 +70,11 @@ def add_user_fun(request):
 									new_user.save()
 									if(user_type_make==1):
 										dsm_data.objects.create(user_id=new_user,tsm=user)
-									if(user_type_make==2):
+									if(user_type_make==2&&user_designation==1):
 										dse_data.objects.create(user_id=new_user,dsm=user)
+									if(user_type_make==2&&user_designation==0):
+										dsm_id=request.POST.get('dsm_id')
+										dse_data.objects.create(user_id=new_user,dsm=dsm_data.objects.get(id=int(dsm_id)))
 									respone['success']=True
 									respone['password']='abcd'
 									respone['message']='Successful'
