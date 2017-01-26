@@ -24,6 +24,7 @@ class user_data(models.Model):
 	address=models.CharField(max_length=200,null=True,blank=True)
 	profile=models.CharField(max_length=400,null=True,blank=True)
 	email=models.CharField(max_length=30,null=True,blank=True)
+	image=models.ImageField(upload_to='users/',default="/media/users/default.png")
 
 	def __unicode__(self):
 		return str(self.user_name)

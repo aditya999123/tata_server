@@ -21,3 +21,11 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^add_user/', add_user_fun),
 ]
+admin.site.site_header = "CodeNicely Administration"#"Code Nicely's Administration"
+admin.site.index_title = 'TataMotors'
+admin.site.site_title = 'Code Nicely'
+
+from django.conf import settings
+from django.conf.urls.static import static
+urlpatterns+=static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
