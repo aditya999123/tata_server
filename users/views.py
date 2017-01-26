@@ -121,6 +121,7 @@ def view_profile(request):
 						tmp['address']=request.scheme+'://'+request.get_host()+'/media/'+str(user_profile.image)
 						tmp['designation']=user_type_deg[user_profile.designation]
 						tmp['profile']=user_profile.profile
+						tmp['email']=user_profile.email
 						#tmp_array.append(tmp_json)
 
 						response['profile_data']=tmp_json
@@ -147,21 +148,39 @@ def view_profile(request):
 				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 				try:
 					user=user_data.objects.get(user_name=json_decoded['user_name'])
-					user_name_profile=request.GET.get('user_name_profile')
-					if(user_name_profile==None):
-						user_name_profile=user.user_name
-					user_profile=user_data.objects.get(user_name=user_name_profile)
-					tmp_json={}
-					tmp['name']=user_profile.name
-					tmp['user_name']=user_profile.user_name
-					tmp['mobile']=user_profile.mobile
-					tmp['image']=request.scheme+'://'+request.get_host()+'/media/'+str(user_profile.image)
-					tmp['address']=user_profile.address
-					tmp['designation']=user_type_deg[user_profile.designation]
-					tmp['profile']=user_profile.profile
-					#tmp_array.append(tmp_json)
+					if(user.active==True):
+						user.name=request.POST.get('name')
+						user.mobile=request.POST.get('mobile')
+						user.address=request.POST.get('address')
+						user.profile=request.POST.get('profile')
+						user.email=request.POST.get('email')
 
-					response['profile_data']=tmp_json
+						image_name=request.FILES.get('profile_image').name
+						folder = 'media/users/'+user.user_name+'/'
+						
+						try:
+							os.mkdir(os.path.join(folder))
+						except:
+							pass
+						
+						tmp_index=0
+						saved=False
+
+						while True:
+							try:
+								fout = open(folder+image_name, 'w')
+								file_content = request.FILES.get('profile_image').read()
+								fout.write(file_content)
+								fout.close()
+							except:
+								image_name+str(tmp_index)
+								tmp_index+=1
+						
+						user.image=folder+image_name
+						user.save()
+					else:
+						response['success']=False
+						response['message']='Access Denied'
 
 				except Exception,e:
 					response['success']=False
