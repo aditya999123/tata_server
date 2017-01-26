@@ -26,6 +26,8 @@ class user_data(models.Model):
 	email=models.CharField(max_length=30,null=True,blank=True)
 	image=models.ImageField(upload_to='users/',default="/media/users/default.png")
 	active=models.BooleanField(default=True)
+	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
+	created= models.DateTimeField(auto_now=False,auto_now_add=True)
 
 	def __unicode__(self):
 		return str(self.user_name)
@@ -33,6 +35,8 @@ class user_data(models.Model):
 
 class tsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
+	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
+	created= models.DateTimeField(auto_now=False,auto_now_add=True)
 	#active=models.BooleanField(default=True)
 	def __unicode__(self):
 		return str(self.user_id)
@@ -41,6 +45,8 @@ class tsm_data(models.Model):
 class dsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
 	tsm=models.ForeignKey(tsm_data,to_field='id')
+	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
+	created= models.DateTimeField(auto_now=False,auto_now_add=True)
 	#active=models.BooleanField(default=True)
 	def __unicode__(self):
 		return str(self.user_id)
@@ -48,4 +54,6 @@ class dsm_data(models.Model):
 class dse_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
 	dsm=models.ForeignKey(dsm_data,to_field='id')
+	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
+	created= models.DateTimeField(auto_now=False,auto_now_add=True)
 	#active=models.BooleanField(default=True)
