@@ -25,6 +25,7 @@ class user_data(models.Model):
 	profile=models.CharField(max_length=400,null=True,blank=True)
 	email=models.CharField(max_length=30,null=True,blank=True)
 	image=models.ImageField(upload_to='users/',default="/media/users/default.png")
+	active=models.BooleanField(default=True)
 
 	def __unicode__(self):
 		return str(self.user_name)
@@ -32,7 +33,7 @@ class user_data(models.Model):
 
 class tsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
-	active=models.BooleanField(default=True)
+	#active=models.BooleanField(default=True)
 	def __unicode__(self):
 		return str(self.user_id)
 	#user_id = user_data.objects.filter(designation='None')
@@ -40,11 +41,11 @@ class tsm_data(models.Model):
 class dsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
 	tsm=models.ForeignKey(tsm_data,to_field='id')
-	active=models.BooleanField(default=True)
+	#active=models.BooleanField(default=True)
 	def __unicode__(self):
 		return str(self.user_id)
 
 class dse_data(models.Model):
 	user_id=models.ForeignKey(user_data,to_field='id')
 	dsm=models.ForeignKey(dsm_data,to_field='id')
-	active=models.BooleanField(default=True)
+	#active=models.BooleanField(default=True)
