@@ -20,8 +20,13 @@ class user_data(models.Model):
 	password=models.CharField(max_length=1200,blank=False,null=False,default=hashlib.sha512('abcd').hexdigest().lower())
 	fcm=models.CharField(max_length=400,null=True,blank=True)
 	designation=models.IntegerField(choices=DEG_CHOICES)
+	mobile=models.CharField(max_length=12,null=True,blank=True)
+	address=models.CharField(max_length=200,null=True,blank=True)
+	profile=models.CharField(max_length=400,null=True,blank=True)
+	email=models.CharField(max_length=30,null=True,blank=True)
+
 	def __unicode__(self):
-		return str(self.name)
+		return str(self.user_name)
 
 
 class tsm_data(models.Model):

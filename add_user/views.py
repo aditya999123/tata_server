@@ -18,12 +18,12 @@ def add_user_fun(request):
 				#print "key:",str(KEYS_internal.objects.get(key='jwt').value)
 				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 				try:
-					user_designation=user_data.objects.get(uname=json_decoded['uname']).designation
+					user_designation=user_data.objects.get(user_name=json_decoded['user_name']).designation
 					if(user_designation==0):
 						tmp_array=[]
 						for o in dsm_data.objects.all():
 							tmp_json={}
-							tmp_json['name']=o.user_id
+							tmp_json['name']=user_data.objects.get(user_name=o.user_id).name
 							tmp_json['id']=o.id
 							tmp_array.append(tmp_json)
 						respone['dsm_list']=tmp_array
@@ -49,7 +49,7 @@ def add_user_fun(request):
 				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 				try:
 					
-					user=user_data.objects.get(uname=json_decoded['uname'])
+					user=user_data.objects.get(user_name=json_decoded['user_name'])
 					user_designation=user.designation
 					try:
 
@@ -62,17 +62,17 @@ def add_user_fun(request):
 						else:
 							try:
 								name=request.POST.get('name')
-								uname=request.POST.get('uname')
-								print "name and uname recieved",name,uname
-								new_user,created=user_data.objects.get_or_create(uname=uname)
+								user_name=request.POST.get('user_name')
+								print "name and user_name recieved",name,user_name
+								new_user,created=user_data.objects.get_or_create(user_name=user_name)
 								if created==True:
 									new_user.name=name
 									new_user.save()
 									if(user_type_make==1):
 										dsm_data.objects.create(user_id=new_user,tsm=user)
-									if(user_type_make==2&&user_designation==1):
+									if(user_type_make==2 and user_designation==1):
 										dse_data.objects.create(user_id=new_user,dsm=user)
-									if(user_type_make==2&&user_designation==0):
+									if(user_type_make==2 and user_designation==0):
 										dsm_id=request.POST.get('dsm_id')
 										dse_data.objects.create(user_id=new_user,dsm=dsm_data.objects.get(id=int(dsm_id)))
 									respone['success']=True
@@ -102,16 +102,17 @@ def add_user_fun(request):
 def login(request):
 	respone={}
 	try:
-		uname=request.POST.get("uname")
+		user_name=request.POST.get("user_name")
 		password=hashlib.sha512(request.POST.get("password")).hexdigest().lower()
-		user=user_data.objects.get(uname=uname)
+		user=user_data.objects.get(user_name=user_name)
 		if(user.password==password):
 			respone['success']=True
 			respone['message']="Successfull"
 
 			if user.first_time_user==True:
 				respone['change_password']=True
-				respone['access_token']=jwt.encode({'uname':uname}, str(KEYS_internal.objects.get(key='jwt').value), algorithm='HS256')
+				respone['user_designation']=user.designation
+				respone['access_token']=jwt.encode({'user_name':user_name}, str(KEYS_internal.objects.get(key='jwt').value), algorithm='HS256')
 				user.first_time_user=False
 				user.save()
 			else:
@@ -132,7 +133,7 @@ def change_password(request):
 		if access_token!=None:
 			json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 			try:
-				user=user_data.objects.get(uname=json_decoded['uname'])
+				user=user_data.objects.get(user_name=json_decoded['user_name'])
 				password=hashlib.sha512(request.POST.get("password")).hexdigest().lower()
 				new_password=hashlib.sha512(request.POST.get("new_password")).hexdigest().lower()
 				if(user.password==password):
