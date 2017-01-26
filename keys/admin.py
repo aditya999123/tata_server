@@ -4,13 +4,13 @@ from django.contrib import admin
 from .models import *
 
 class KEYS_internal_admin(admin.ModelAdmin):
-   list_display=["key","value"]
+   list_display=["key","value","created","modified"]
 admin.site.register(KEYS_internal,KEYS_internal_admin)
 
 class KEYS_custom_Admin(admin.ModelAdmin):
-   list_display=["key","value"]
+   list_display=["key","value","created","modified"]
 admin.site.register(KEYS_custom,KEYS_custom_Admin)
 
 class KEYS_list_Admin(admin.ModelAdmin):
-   list_display=["key"]
+   list_display=["key","created","modified"]
 admin.site.register(KEYS_list,KEYS_list_Admin)
