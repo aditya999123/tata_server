@@ -89,3 +89,41 @@ def view_dse(request):
 		respone['message']=str(e)
 		
 	return JsonResponse(respone)
+user_type_deg={0:'TSM',1:'DSM',2:'DSE'}
+def view_profile(request):
+	respone={}
+	try:
+		access_token= request.POST.get("access_token")
+		print "access_token :",access_token
+		if access_token!=None:
+			json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
+			try:
+				user=user_data.objects.get(user_name=json_decoded['user_name'])
+				user_name_profile=request.GET.get('user_name_profile')
+				if(user_name_profile==None):
+					user_name_profile=user.user_name
+				user_profile=user_data.objects.get(user_name=user_name_profile)
+				tmp_json={}
+				tmp['name']=user_profile.name
+				tmp['user_name']=user_profile.user_name
+				tmp['mobile']=user_profile.mobile
+				tmp['image']=request.scheme+'://'+request.get_host()+'/media/'+str(user_profile.image)
+				tmp['address']=request.scheme+'://'+request.get_host()+'/media/'+str(user_profile.image)
+				tmp['designation']=user_type_deg[user_profile.designation]
+				tmp['profile']=user_profile.profile
+				#tmp_array.append(tmp_json)
+
+				response['profile_data']=tmp_json
+
+			except Exception,e:
+				respone['success']=False
+				respone['message']=str(e)
+
+		else:
+			respone['success']=False
+			respone['message']='no access token'
+	except Exception,e:
+		respone['success']=False
+		respone['message']=str(e)
+		
+	return JsonResponse(respone)
