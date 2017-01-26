@@ -19,7 +19,7 @@ def view_dsm(request):
 						tmp['dsm_id']=o.id
 						user_in_list=user_data.objects.get(user_name=o.user_id)
 						tmp['dsm_name']=user_in_list.name
-						tmp['user_name']=user_in_list.user_name
+						tmp['dsm_user_name']=user_in_list.user_name
 						tmp['image']=request.scheme+'://'+request.get_host()+'/media/'+str(user_in_list.image)
 						tmp_array.append(tmp_json)
 
@@ -58,7 +58,7 @@ def view_dse(request):
 						tmp['dse_id']=o.id
 						user_in_list=user_data.objects.get(user_name=o.user_id)
 						tmp['dse_name']=user_in_list.name
-						tmp['user_name']=user_in_list.user_name
+						tmp['dse_user_name']=user_in_list.user_name
 						tmp['image']=request.scheme+'://'+request.get_host()+'/media/'+str(user_in_list.image)
 						tmp_array.append(tmp_json)
 
@@ -69,7 +69,7 @@ def view_dse(request):
 						tmp['dse_id']=o.id
 						user_in_list=user_data.objects.get(user_name=o.user_id)
 						tmp['dse_name']=user_in_list.name
-						tmp['user_name']=user_in_list.user_name
+						tmp['dse_user_name']=user_in_list.user_name
 						tmp['image']=request.scheme+'://'+request.get_host()+'/media/'+str(user_in_list.image)
 						tmp_array.append(tmp_json)
 
