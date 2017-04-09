@@ -5,8 +5,10 @@ from .models import *
 import hashlib
 import jwt
 from keys.models import KEYS_internal
+from django.views.decorators.csrf import csrf_exempt
 user_type_deg={0:'TSM',1:'DSM',2:'DSE'}
 
+@csrf_exempt
 def add_user_fun(request):
 	response={}
 	#####################################################################################
@@ -18,17 +20,34 @@ def add_user_fun(request):
 				#print "key:",str(KEYS_internal.objects.get(key='jwt').value)
 				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 				try:
-					user=user_data.objects.get(user_name=json_decoded['user_name'])
-					user_designation=user.designation
+					user=user_data.objects.get(id=json_decoded['user_id'])
+					user_designation=int(user.designation)
+					user_make_type=int(request.GET.get("user_make_type"))
 					if(user.active==True):
-						if(user_designation==0):
+						response['success']=True
+						response['message']="all fine"
+						print "user_designation",user_designation
+
+						if(user_designation==0 and user_make_type==1):
 							tmp_array=[]
-							for o in dsm_data.objects.all():
+							for o in dealer_data.objects.all():
 								tmp_json={}
-								tmp_json['name']=user_data.objects.get(user_name=o.user_id).name
-								tmp_json['id']=o.id
+								tmp_json['dealer_name']=o.name
+								tmp_json['dealer_id']=o.id
+								tmp_array.append(tmp_json)
+							response['dealer_list']=tmp_array
+
+						elif(user_designation==0 and user_make_type==2):
+							tmp_array=[]
+							#user_dsm=user_data.objects.get(id=dsm_id)
+							for o in dsm_data.objects.all():#filter(dsm=user_dsm):
+								tmp_json={}
+								tmp_json['name']=o.user_id.name
+								tmp_json['id']=o.user_id.id
 								tmp_array.append(tmp_json)
 							response['dsm_list']=tmp_array
+						elif(user_designation==1):
+							pass
 						else:
 							response['success']=False
 							response['insufficient access']
@@ -54,15 +73,16 @@ def add_user_fun(request):
 				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 				try:
 					
-					user=user_data.objects.get(user_name=json_decoded['user_name'])
-					user_designation=user.designation
+					user=user_data.objects.get(id=json_decoded['user_id'])
+					user_designation=int(user.designation)
+					print "user_designation",user_designation
 					if(user.active==True):
 						try:
+							print "@81"
+							user_make_type=int(request.POST.get("user_make_type"))
+							print "user_make_type",user_make_type
 
-							user_type_make=int(request.POST.get("user_type"))
-							print "user to be added deg",user_type
-
-							if(user_type_make<=user_type_deg[user_designation]):
+							if(user_make_type<=user_designation):
 								response['success']=False
 								response['message']='access denied'
 							else:
@@ -74,18 +94,26 @@ def add_user_fun(request):
 									if created==True:
 										new_user.name=name
 										new_user.save()
-										if(user_type_make==1):
-											dsm_data.objects.create(user_id=new_user,tsm=user)
+										if(user_make_type==1):
+											dealer_id=request.POST.get('choose_id')
+											dealer=dealer_data.objects.get(id=dealer_id)
+											user_tsm=tsm_data.objects.get(user_id=user)
+											dsm_data.objects.create(user_id=new_user,tsm=user_tsm,dealer=dealer)
 											new_user.designation=1
 											new_user.save()
-										if(user_type_make==2 and user_designation==1):
-											dse_data.objects.create(user_id=new_user,dsm=user)
+										if(user_make_type==2 and user_designation==1):
+											# dealer_id=request.POST.get('choose_id')
+											# dealer=dealer_data.objects.get(id=dealer_id)
+											user_dsm=dsm_data.objects.get(user_id=user)
+											dse_data.objects.create(user_id=new_user,dsm=user_dsm)
 											new_user.designation=2
 											new_user.save()
-										if(user_type_make==2 and user_designation==0):
-											dsm_id=request.POST.get('dsm_id')
-											dse_data.objects.create(user_id=new_user,dsm=dsm_data.objects.get(id=int(dsm_id)))
-											new_user.designation==2
+										if(user_make_type==2 and user_designation==0):
+											dsm_id=request.POST.get('choose_id')
+											user_dsm=user_data.objects.get(id=dsm_id)
+											dsm_user=dsm_data.objects.get(user_id=user_dsm)
+											dse_data.objects.create(user_id=new_user,dsm=dsm_user)
+											new_user.designation=2
 											new_user.save()
 										response['success']=True
 										response['password']='abcd'
@@ -111,9 +139,10 @@ def add_user_fun(request):
 		except Exception,e:
 			response['success']=False
 			response['message']=str(e)
-
+	print response
 	return JsonResponse(response)
 
+@csrf_exempt
 def login(request):
 	response={}
 	try:
@@ -124,11 +153,12 @@ def login(request):
 			if(user.password==password):
 				response['success']=True
 				response['message']="Successfull"
+				response['user_type']=user.designation
+				response['user_id']=user.id
+				response['access_token']=jwt.encode({'user_id':user.id}, str(KEYS_internal.objects.get(key='jwt').value), algorithm='HS256')
 
 				if user.first_time_user==True:
 					response['change_password']=True
-					response['user_designation']=user.designation
-					response['access_token']=jwt.encode({'user_name':user_name}, str(KEYS_internal.objects.get(key='jwt').value), algorithm='HS256')
 					user.first_time_user=False
 					user.save()
 				else:
@@ -142,8 +172,10 @@ def login(request):
 	except Exception,e:
 		response['success']=False
 		response['message']=str(e)
+	print response
 	return JsonResponse(response)
 
+@csrf_exempt
 def change_password(request):
 	response={}
 	try:
@@ -152,7 +184,7 @@ def change_password(request):
 		if access_token!=None:
 			json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 			try:
-				user=user_data.objects.get(user_name=json_decoded['user_name'])
+				user=user_data.objects.get(id=json_decoded['user_id'])
 				if(user.active==True):
 					password=hashlib.sha512(request.POST.get("password")).hexdigest().lower()
 					new_password=hashlib.sha512(request.POST.get("new_password")).hexdigest().lower()

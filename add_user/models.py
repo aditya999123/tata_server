@@ -8,19 +8,18 @@ import hashlib
 #	name=models.CharField(max_length=20,blank=False,null=False)
 
 DEG_CHOICES = (
-	(4, 'None'),
-        (0, 'DSE'),
-        (1, 'DSM'),
-        (2, 'TSM'))
+	('-1', 'None'),
+        ('2', 'DSE'),
+        ('1', 'DSM'),
+        ('0', 'TSM'))
 
 class user_data(models.Model):
-	id=models.AutoField(primary_key=True)
 	name=models.CharField(max_length=20,blank=True,null=True)
 	user_name=models.CharField(max_length=20,blank=False,null=False)
 	password=models.CharField(max_length=1200,blank=False,null=False,default=hashlib.sha512('abcd').hexdigest().lower())
 	fcm=models.CharField(max_length=400,null=True,blank=True)
-	designation=models.IntegerField(choices=DEG_CHOICES)
-	mobile=models.CharField(max_length=12,null=True,blank=True)
+	designation=models.CharField(max_length=100,choices=DEG_CHOICES,null=False)
+	mobile=models.CharField(max_length=40,null=True,blank=True)
 	address=models.CharField(max_length=200,null=True,blank=True)
 	profile=models.CharField(max_length=400,null=True,blank=True)
 	email=models.CharField(max_length=30,null=True,blank=True)
@@ -28,32 +27,38 @@ class user_data(models.Model):
 	active=models.BooleanField(default=True)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
-
+	first_time_user=models.BooleanField(default=True)
 	def __unicode__(self):
-		return str(self.user_name)
+		return self.user_name
 
+class dealer_data(models.Model):
+	name=models.CharField(max_length=40,null=True,blank=True)
+	location=models.CharField(max_length=400,null=True,blank=True)
+	description=models.CharField(max_length=400,null=True,blank=True)
+	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
+	created= models.DateTimeField(auto_now=False,auto_now_add=True)
+	def __unicode__(self):
+		return self.name
 
 class tsm_data(models.Model):
-	user_id=models.ForeignKey(user_data,to_field='id')
+	user_id=models.ForeignKey(user_data,null=True)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
-	#active=models.BooleanField(default=True)
 	def __unicode__(self):
-		return str(self.user_id)
-	#user_id = user_data.objects.filter(designation='None')
+		return self.user_id.user_name
 
 class dsm_data(models.Model):
-	user_id=models.ForeignKey(user_data,to_field='id')
-	tsm=models.ForeignKey(tsm_data,to_field='id')
+	user_id=models.ForeignKey(user_data,null=True)
+	tsm=models.ForeignKey(tsm_data,null=True)
+	dealer=models.ForeignKey(dealer_data,null=True)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
-	#active=models.BooleanField(default=True)
 	def __unicode__(self):
-		return str(self.user_id)
+		return self.user_id.user_name
 
 class dse_data(models.Model):
-	user_id=models.ForeignKey(user_data,to_field='id')
-	dsm=models.ForeignKey(dsm_data,to_field='id')
+	user_id=models.ForeignKey(user_data,null=True)
+	dsm=models.ForeignKey(dsm_data,null=True)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
-	#active=models.BooleanField(default=True)
+

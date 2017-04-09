@@ -22,3 +22,7 @@ admin.site.register(dsm_data,dsm_data_Admin)
 class dse_data_Admin(admin.ModelAdmin):
     list_display=["user_id","created","modified"]
 admin.site.register(dse_data,dse_data_Admin)
+
+class dealer_data_Admin(admin.ModelAdmin):
+    list_display=["name","location","created","modified"]
+admin.site.register(dealer_data,dealer_data_Admin)

@@ -16,14 +16,20 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from add_user.views import add_user_fun
+from add_user.views import add_user_fun,login,change_password
+from users.views import view_users,view_profile
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^add_user/', add_user_fun),
+    url(r'^login/', login),
+    url(r'^change_password/', change_password),
+    url(r'^view_user/', view_users),
+    url(r'^profile/', view_profile),
+#    url(r'^dealer/', dealer),
 ]
-admin.site.site_header = "CodeNicely Administration"#"Code Nicely's Administration"
+admin.site.site_header = "TATA Administration"#"Code Nicely's Administration"
 admin.site.index_title = 'TataMotors'
-admin.site.site_title = 'Code Nicely'
+admin.site.site_title = 'NIT Raipur'
 
 from django.conf import settings
 from django.conf.urls.static import static

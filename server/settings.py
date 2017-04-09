@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'add_user',
     'keys',
     'users',
+    'customer',
 ]
 
 MIDDLEWARE_CLASSES = [
