@@ -12,6 +12,7 @@ admin.site.register(vehicle_model_data)
 admin.site.register(financier_data)
 admin.site.register(application_data)
 admin.site.register(location_data)
+admin.site.register(followup_data)
 
 
  
