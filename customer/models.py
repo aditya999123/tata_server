@@ -18,6 +18,12 @@ class customer_data(models.Model):
 	followup=models.DateField(null=True)
 	status=models.CharField(max_length=100,choices=STATUS_CHOICES,default="Pending")
 	dse=models.ForeignKey(dse_data,null=True)
+	application=models.CharField(max_length=20,blank=True,null=True)
+	town=models.CharField(max_length=20,blank=True,null=True)
+	district=models.CharField(max_length=20,blank=True,null=True)
+	tehsil=models.CharField(max_length=20,blank=True,null=True)
+	financier=models.CharField(max_length=20,blank=True,null=True)
+	location=models.CharField(max_length=20,blank=True,null=True)
 	def __unicode__(self):
 		return self.name
 
@@ -28,6 +34,9 @@ class vehicle_selected_data(models.Model):
 	quantity=models.IntegerField(default=0)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
+
+	def __unicode__(self):
+		return self.name
 
 class followup_data(models.Model):
 	customer=models.ForeignKey(customer_data,null=True)
