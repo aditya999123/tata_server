@@ -18,7 +18,7 @@ from django.conf.urls import url
 from django.contrib import admin
 from add_user.views import add_user_fun,login,change_password
 from users.views import view_users,view_profile
-from customer.views import add_customer
+from customer.views import add_customer,edit_customer,view_customer,followup_list
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^add_user/', add_user_fun),
@@ -26,7 +26,10 @@ urlpatterns = [
     url(r'^change_password/', change_password),
     url(r'^view_user/', view_users),
     url(r'^profile/', view_profile),
-url(r'^customer/',add_customer),
+url(r'^add_customer/',add_customer),
+url(r'^edit_customer/',edit_customer),
+url(r'^view_customer/',view_customer),
+url(r'^followup/',followup_list),
 #    url(r'^dealer/', dealer),
 ]
 admin.site.site_header = "TATA Administration"#"Code Nicely's Administration"

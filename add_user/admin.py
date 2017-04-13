@@ -12,15 +12,15 @@ class user_data_Admin(admin.ModelAdmin):
 admin.site.register(user_data,user_data_Admin)
 
 class tsm_data_Admin(admin.ModelAdmin):
-    list_display=["user_id","created","modified"]
+    list_display=["user_id","name","created","modified"]
 admin.site.register(tsm_data,tsm_data_Admin)
 
 class dsm_data_Admin(admin.ModelAdmin):
-    list_display=["user_id","created","modified"]
+    list_display=["user_id","name","dealer","target_monthly_dsm","created","modified"]
 admin.site.register(dsm_data,dsm_data_Admin)
 
 class dse_data_Admin(admin.ModelAdmin):
-    list_display=["user_id","created","modified"]
+    list_display=["user_id","name","dsm","daily_target","customer_reached_today","created","modified"]
 admin.site.register(dse_data,dse_data_Admin)
 
 class dealer_data_Admin(admin.ModelAdmin):

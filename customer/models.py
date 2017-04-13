@@ -16,7 +16,7 @@ class customer_data(models.Model):
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
 	followup=models.DateField(null=True)
-	status=models.CharField(max_length=100,choices=STATUS_CHOICES,default="Pending")
+	status=models.IntegerField(choices=STATUS_CHOICES,default=0)
 	dse=models.ForeignKey(dse_data,null=True)
 	application=models.CharField(max_length=20,blank=True,null=True)
 	town=models.CharField(max_length=20,blank=True,null=True)

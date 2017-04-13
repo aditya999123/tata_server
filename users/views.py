@@ -5,18 +5,36 @@ from add_user.models import *
 from customer.models import *
 from django.http import JsonResponse
 import jwt
+import datetime
+report_flag=False
 def view_users(request):
 	response={}
 	tmp_array=[]
 	try:
 		access_token= request.GET.get("access_token")
 		print "access_token :",access_token
+		for x,y in request.GET.iteritems():
+			print x,y
 		if access_token!=None:
 			json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 			try:
 				user=user_data.objects.get(id=json_decoded['user_id'])
 				user_designation=int(user.designation)
 				user_want_type=int(request.GET.get('user_see_type'))
+				try:
+					to_date=request.POST.get('to_date')
+					date=to_date.split('/')
+					date=map(int,date)
+					to_date=datetime.datetime(date[2],date[1],date[0])
+					
+					from_date=request.POST.get('from_date')
+					date=from_date.split('/')
+					date=map(int,date)
+					from_date=datetime.datetime(date[2],date[1],date[0])
+				except:
+					from_date=datetime.datetime.now().date()
+					to_date=datetime.datetime.now()+datetime.timedelta(1)
+					to_date=to_date.date()
 				if(user.active==True):
 					print"@20"
 					print "user_designation",user_designation
@@ -35,10 +53,9 @@ def view_users(request):
 						choose_id=int(request.GET.get('choose_id'))
 						if choose_id==-1:
 							list= dse_data.objects.all()
-
 						else:
-							user_dsm=user_data.objects.get(id=choose_id)
-							dsm_user=dsm_data.objects.get(user_id=user_dsm)
+							#user_dsm=user_data.objects.get(id=choose_id)
+							dsm_user=dsm_data.objects.get(id=choose_id)
 							list= dse_data.objects.filter(dsm=dsm_user)
 
 					elif(user_designation==1 and user_want_type==2):
@@ -55,19 +72,78 @@ def view_users(request):
 					elif(user_want_type==4):
 						choose_id=int(request.GET.get('choose_id'))
 						print "choose_id",choose_id
-						user_dse=user_data.objects.get(id=choose_id)
-						dse_user=dse_data.objects.get(user_id=user_dse)
-						list=customer_data.objects.filter(dse=dse_user)
+						#user_dse=user_data.objects.get(id=choose_id)
+						dse_user=dse_data.objects.get(id=choose_id)
+						print dse_user.user_id.name
+						for o in customer_data.objects.filter(dse=dse_user):
+							tmp_json={}
+							tmp_json['id']=o.id
+							tmp_json['name']=o.name
+							tmp_array.append(tmp_json)
 					else:
 						response['success']=False
 						response['message']="insufficient access"
 					try:
+
+						print"here@78"
 						if(response['success']==True):
 							for o in list:
-								tmp_json={}
-								tmp_json['id']=o.user_id.id
-								tmp_json['name']=o.user_id.name
-								tmp_array.append(tmp_json)
+								try:
+									print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@82"
+									tmp_json={}
+									tmp_json['id']=o.id
+									tmp_json['name']=o.user_id.name
+									if user_want_type==2:			
+										tmp_json['daily_target']=o.dsm.target_daily_dse
+										customer_list=customer_data.objects.filter(dse=o,created__range=[from_date,to_date])
+										for fol in followup_data.objects.filter(created__range=[from_date,to_date],customer__dse=o):
+											if fol.customer not in customer_list:
+												customer_list.append(fol.customer)
+										tmp_json['customer_met']=customer_list.count()
+										tmp_json['pending']=customer_list.filter(status=0).count()
+										tmp_json['sold']=customer_list.filter(status=1).count()
+										tmp_json['lost']=customer_list.filter(status=2).count()
+										green=0
+										red=1
+										tmp_json['colour_flag']=green
+										if from_date==datetime.datetime.now().date():
+											if report_flag==True:
+												if o.tagret_achieved==False:
+													if(o.customer_reached_today<o.daily_target):
+														tmp_json['colour_flag']=red
+													else:
+														for cust in customer_data.objects.filter(dse=o):
+															if(cust.followup<datetime.datetime.now().date()):
+																tmp_json['colour_flag']=red
+																break
+									if user_want_type==1:
+										a=0
+										b=0
+										c=0
+										d=0
+										print o
+										for ds in dse_data.objects.filter(dsm=o):
+											tmp_json['daily_target']=o.target_daily_dse
+											print ds
+											customer_list=customer_data.objects.filter(dse=ds,created__range=[from_date,to_date])
+											for fol in followup_data.objects.filter(created__range=[from_date,to_date],customer__dse=ds):
+												print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+												if fol.customer not in customer_list:
+													customer_list.append(fol.customer)
+											a=a+customer_list.count()
+											b=b+customer_list.filter(status=0).count()
+											c=c+customer_list.filter(status=1).count()
+											d=d+customer_list.filter(status=2).count()
+
+										tmp_json['customer_met']=a
+										tmp_json['pending']=b
+										tmp_json['sold']=c
+										tmp_json['lost']=d
+
+									tmp_array.append(tmp_json)
+								except Exception,e:
+									response['success']=False
+									response['message']=str(e)
 					except:
 						pass
 				else:

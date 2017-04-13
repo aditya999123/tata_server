@@ -40,12 +40,15 @@ class dealer_data(models.Model):
 	def __unicode__(self):
 		return self.name
 
+
 class tsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,null=True)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
 	def __unicode__(self):
 		return self.user_id.user_name
+	def name(self):
+		return self.user_id.name
 
 class dsm_data(models.Model):
 	user_id=models.ForeignKey(user_data,null=True)
@@ -53,14 +56,26 @@ class dsm_data(models.Model):
 	dealer=models.ForeignKey(dealer_data,null=True)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
+	target_daily_dse=models.IntegerField(default=0)
+	target_monthly_dsm=models.IntegerField(default=0)
+	#total_customer_this_month=models.IntegerField(default=0)
 	def __unicode__(self):
 		return self.user_id.user_name
-
+	def name(self):
+		return self.user_id.name
 class dse_data(models.Model):
 	user_id=models.ForeignKey(user_data,null=True)
 	dsm=models.ForeignKey(dsm_data,null=True)
 	modified= models.DateTimeField(auto_now=True,auto_now_add=False)
 	created= models.DateTimeField(auto_now=False,auto_now_add=True)
+	customer_reached_today=models.IntegerField(default=0)
+	tagret_achieved=models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return self.user_id.user_name
+
+	def name(self):
+		return self.user_id.name
+
+	def daily_target(self):
+		return self.dsm.target_daily_dse
