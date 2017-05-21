@@ -70,7 +70,12 @@ def view_users(request):
 							tmp_json['id']=o.id
 							tmp_json['name']=o.name
 							tmp_array.append(tmp_json)
-
+					# elif(user_designation==1 and user_want_type==4):
+					# 	for o in dealer_data.objects.all():
+					# 		tmp_json={}
+					# 		tmp_json['id']=o.id
+					# 		tmp_json['name']=o.name
+					# 		tmp_array.append(tmp_json)
 					elif(user_want_type==4):
 						choose_id=int(request.GET.get('choose_id'))
 						print "choose_id",choose_id
@@ -78,12 +83,31 @@ def view_users(request):
 						if choose_id==-1:
 							#dse_user=dse_data.objects.get(id=choose_id)
 							#print dse_user.user_id.name
-							for o in customer_data.objects.all():#filter(dse=dse_user):
-								tmp_json={}
-								tmp_json['id']=o.id
-								tmp_json['name']=o.name
-								tmp_array.append(tmp_json)
+							if user_designation==0:
+								for o in customer_data.objects.all():#filter(dse=dse_user):
+									tmp_json={}
+									tmp_json['id']=o.id
+									tmp_json['name']=o.name
+									tmp_array.append(tmp_json)
+
+							if user_designation==1:
+								dsm_user=dsm_data.objects.get(user_id=user)
+								for d in dse_data.objects.filter(dsm=dsm_user):
+									for o in customer_data.objects.filter(dse=d):#filter(dse=dse_user):
+										tmp_json={}
+										tmp_json['id']=o.id
+										tmp_json['name']=o.name
+										tmp_array.append(tmp_json)
+							if user_designation==2:
+								dse_user=user_data.objects.get(user_id=user)
+								print dse_user.user_id.name
+								for o in customer_data.objects.filter(dse=dse_user):
+									tmp_json={}
+									tmp_json['id']=o.id
+									tmp_json['name']=o.name
+									tmp_array.append(tmp_json)
 						else:
+							#if user_designation==2
 							dse_user=dse_data.objects.get(id=choose_id)
 							print dse_user.user_id.name
 							for o in customer_data.objects.filter(dse=dse_user):

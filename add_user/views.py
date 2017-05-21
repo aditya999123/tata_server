@@ -27,7 +27,7 @@ def add_user_fun(request):
 						response['success']=True
 						response['message']="all fine"
 						print "user_designation",user_designation
-
+						print "user_make_type",user_make_type
 						if(user_designation==0 and user_make_type==1):
 							tmp_array=[]
 							for o in dealer_data.objects.all():

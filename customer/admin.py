@@ -4,7 +4,7 @@ from django.contrib import admin
 from .models import *
 
 class customer_data_Admin(admin.ModelAdmin):
-	list_display=["name","mobile","followup","modified","created"]
+	list_display=["name","dse","mobile","followup","modified","created"]
 admin.site.register(customer_data,customer_data_Admin)
 
 class vehicle_selected_data_Admin(admin.ModelAdmin):
