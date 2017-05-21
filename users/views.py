@@ -4,6 +4,7 @@ from keys.models import *
 from add_user.models import *
 from customer.models import *
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import jwt
 import datetime
 report_flag=False
@@ -103,6 +104,7 @@ def view_users(request):
 									tmp_json={}
 									tmp_json['id']=o.id
 									tmp_json['name']=o.user_id.name
+									tmp_json['user_id']=o.user_id.id
 									if user_want_type==2:			
 										tmp_json['daily_target']=o.dsm.target_daily_dse
 										print "datexxx",from_date
@@ -177,6 +179,7 @@ def view_users(request):
 	return JsonResponse(response)
 
 user_type_deg={0:'TSM',1:'DSM',2:'DSE'}
+@csrf_exempt
 def view_profile(request):
 	response={}
 	if request.method=='GET':
@@ -190,8 +193,8 @@ def view_profile(request):
 					if(user.active==True):
 						user_see_id=request.GET.get('user_id')
 						print 'user_see_id',user_see_id
-						user_profile=user_data.objects.get(id=user_see_id)
-						
+						user_profile=user_data.objects.get(id=int(user_see_id))
+						print "arpit_chu"
 						response['name']=user_profile.name
 						response['user_name']=user_profile.user_name
 						response['mobile']=user_profile.mobile
@@ -224,33 +227,38 @@ def view_profile(request):
 			if access_token!=None:
 				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
 				try:
-					user=user_data.objects.get(id=json_decoded['user_id'])
+					print "addd",request.POST.get('user_id')
+					for x,y in request.POST.iteritems():
+						print x,y
+					user=user_data.objects.get(id=int(request.POST.get('user_id')))
 					if(user.active==True):
 						user.name=request.POST.get('name')
 						user.mobile=request.POST.get('mobile')
 						user.address=request.POST.get('address')
 						user.email=request.POST.get('email')
-						image_name=request.FILES.get('profile_image').name
-						folder = 'media/users/'+user.user_name+'/'
-						try:
-							os.mkdir(os.path.join(folder))
-						except:
-							pass
-						tmp_index=0
-						saved=False
+						#image_name=request.FILES.get('profile_image').name
+						#folder = 'media/users/'+user.user_name+'/'
+						#try:
+						#	os.mkdir(os.path.join(folder))
+						#except:
+						#	pass
+						#tmp_index=0
+						#saved=False
 
-						while True:
-							try:
-								fout = open(folder+image_name, 'w')
-								file_content = request.FILES.get('profile_image').read()
-								fout.write(file_content)
-								fout.close()
-							except:
-								image_name+str(tmp_index)
-								tmp_index+=1
+						#while True:
+							# try:
+							# 	fout = open(folder+image_name, 'w')
+							# 	file_content = request.FILES.get('profile_image').read()
+							# 	fout.write(file_content)
+							# 	fout.close()
+							# except:
+							# 	image_name+str(tmp_index)
+							# 	tmp_index+=1
 						
-						user.image=folder+image_name
+						#user.image=folder+image_name
 						user.save()
+						response['success']=True
+						response['message']="updated"
 					else:
 						response['success']=False
 						response['message']='Access Denied'
