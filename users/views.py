@@ -21,20 +21,21 @@ def view_users(request):
 				user=user_data.objects.get(id=json_decoded['user_id'])
 				user_designation=int(user.designation)
 				user_want_type=int(request.GET.get('user_see_type'))
-				try:
-					to_date=request.POST.get('to_date')
-					date=to_date.split('/')
-					date=map(int,date)
-					to_date=datetime.datetime(date[2],date[1],date[0])
-					
-					from_date=request.POST.get('from_date')
-					date=from_date.split('/')
-					date=map(int,date)
-					from_date=datetime.datetime(date[2],date[1],date[0])
-				except:
-					from_date=datetime.datetime.now().date()
-					to_date=datetime.datetime.now()+datetime.timedelta(1)
-					to_date=to_date.date()
+				#try:
+				to_date=request.GET.get('to_date')
+				date=to_date.split('/')
+				date=map(int,date)
+				to_date=datetime.datetime(date[2],date[1],date[0])
+				
+				from_date=request.GET.get('from_date')
+				date=from_date.split('/')
+				date=map(int,date)
+				from_date=datetime.datetime(date[2],date[1],date[0])
+				# except Exception,e:
+				# 	print e
+				# 	from_date=datetime.datetime.now().date()
+				# 	to_date=datetime.datetime.now()+datetime.timedelta(1)
+				# 	to_date=to_date.date()
 				if(user.active==True):
 					print"@20"
 					print "user_designation",user_designation
@@ -73,13 +74,22 @@ def view_users(request):
 						choose_id=int(request.GET.get('choose_id'))
 						print "choose_id",choose_id
 						#user_dse=user_data.objects.get(id=choose_id)
-						dse_user=dse_data.objects.get(id=choose_id)
-						print dse_user.user_id.name
-						for o in customer_data.objects.filter(dse=dse_user):
-							tmp_json={}
-							tmp_json['id']=o.id
-							tmp_json['name']=o.name
-							tmp_array.append(tmp_json)
+						if choose_id==-1:
+							#dse_user=dse_data.objects.get(id=choose_id)
+							#print dse_user.user_id.name
+							for o in customer_data.objects.all():#filter(dse=dse_user):
+								tmp_json={}
+								tmp_json['id']=o.id
+								tmp_json['name']=o.name
+								tmp_array.append(tmp_json)
+						else:
+							dse_user=dse_data.objects.get(id=choose_id)
+							print dse_user.user_id.name
+							for o in customer_data.objects.filter(dse=dse_user):
+								tmp_json={}
+								tmp_json['id']=o.id
+								tmp_json['name']=o.name
+								tmp_array.append(tmp_json)
 					else:
 						response['success']=False
 						response['message']="insufficient access"
@@ -95,6 +105,8 @@ def view_users(request):
 									tmp_json['name']=o.user_id.name
 									if user_want_type==2:			
 										tmp_json['daily_target']=o.dsm.target_daily_dse
+										print "datexxx",from_date
+										print "datexxx",to_date
 										customer_list=customer_data.objects.filter(dse=o,created__range=[from_date,to_date])
 										for fol in followup_data.objects.filter(created__range=[from_date,to_date],customer__dse=o):
 											if fol.customer not in customer_list:
@@ -127,7 +139,7 @@ def view_users(request):
 											print ds
 											customer_list=customer_data.objects.filter(dse=ds,created__range=[from_date,to_date])
 											for fol in followup_data.objects.filter(created__range=[from_date,to_date],customer__dse=ds):
-												print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+												print "xyz"
 												if fol.customer not in customer_list:
 													customer_list.append(fol.customer)
 											a=a+customer_list.count()
