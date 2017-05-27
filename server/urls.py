@@ -17,7 +17,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from add_user.views import add_user_fun,login,change_password
-from users.views import view_users,view_profile
+from users.views import view_users,view_profile,targets
 from customer.views import add_customer,edit_customer,view_customer,followup_list
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -30,11 +30,12 @@ url(r'^add_customer/',add_customer),
 url(r'^edit_customer/',edit_customer),
 url(r'^view_customer/',view_customer),
 url(r'^followup/',followup_list),
+url(r'^targets/',targets),
 #    url(r'^dealer/', dealer),
 ]
 admin.site.site_header = "TATA Administration"#"Code Nicely's Administration"
-admin.site.index_title = 'TataMotors'
-admin.site.site_title = 'NIT Raipur'
+admin.site.index_title = 'Tata Motors'
+admin.site.site_title = 'ADMIN'
 
 from django.conf import settings
 from django.conf.urls.static import static

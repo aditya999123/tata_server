@@ -300,3 +300,82 @@ def view_profile(request):
 	
 	print response
 	return JsonResponse(response)
+
+def targets(request):
+	response={}
+	if request.method=='GET':
+		try:
+			access_token= request.GET.get("access_token")
+			print "access_token :",access_token
+			if access_token!=None:
+				json_decoded=jwt.decode(str(access_token),str(KEYS_internal.objects.get(key='jwt').value), algorithms=['HS256'])
+				try:
+					user=user_data.objects.get(id=json_decoded['user_id'])
+					user_designation=int(user.designation)
+					if (user_designation==0):
+					########################################################################################################
+						total_target_daily=0
+						completed_target_today=0
+
+						todays_followup=0
+
+						total_monthly_target=user.target_monthly_dsm
+						completed_target_monthly=0
+
+						for dse_user in dse_data.objects.all():
+							completed_target_today+=customer_data.objects.filter(dse=dse_user,created=datetime.datetime.now().date()).count()
+							total_target_daily+=user.target_daily_dse
+							todays_followup+=followup_data.objects.filter(created=datetime.datetime.now().date(),customer__dse=dse_user).count()
+							completed_target_monthly+=customer_data.objects.filter(dse=dse_user,created__month=datetime.datetime.now().date().month).count()
+
+						response['daily_target']=str(completed_target_today)+'/'+str(total_target_daily)
+						response['monthly_target']=str(completed_target_monthly)+'/'+str(total_monthly_target)
+						response['followup_today']=str(todays_followup)						
+					########################################################################################################
+					if (user_designation==1):
+						####################################################################################################
+
+						total_target_daily=0
+						completed_target_today=0
+
+						todays_followup=0
+
+						total_monthly_target=user.target_monthly_dsm
+						completed_target_monthly=0
+
+						for dse_user in dse_data.objects.filter(dsm=user):
+							completed_target_today+=customer_data.objects.filter(dse=dse_user,created=datetime.datetime.now().date()).count()
+							total_target_daily+=user.target_daily_dse
+							todays_followup+=followup_data.objects.filter(created=datetime.datetime.now().date(),customer__dse=dse_user).count()
+							completed_target_monthly+=customer_data.objects.filter(dse=dse_user,created__month=datetime.datetime.now().date().month).count()
+
+						response['daily_target']=str(completed_target_today)+'/'+str(total_target_daily)
+						response['monthly_target']=str(completed_target_monthly)+'/'+str(total_monthly_target)
+						response['followup_today']=str(todays_followup)
+						####################################################################################################
+					if (user_designation==2):
+						total_target_daily=user.dsm.target_daily_dse
+						completed_target_today=customer_data.objects.filter(dse=user,created=datetime.datetime.now().date()).count()
+
+						todays_followup=followup_data.objects.filter(created=datetime.datetime.now().date(),customer__dse=user).count()
+
+						total_monthly_target=total_target_daily*30
+						completed_target_monthly=customer_data.objects.filter(dse=user,created__month=datetime.datetime.now().date().month).count()
+
+						response['daily_target']=str(completed_target_today)+'/'+str(total_target_daily)
+						response['monthly_target']=str(completed_target_monthly)+'/'+str(total_monthly_target)
+						response['followup_today']=str(todays_followup)
+				except Exception,e:
+					response['success']=False
+					response['message']=str(e)
+			else:
+				response['success']=False
+				response['message']='access token null'
+		except Exception,e:
+			response['success']=False
+			response['message']=str(e)
+	else:
+		response['success']=False
+		response['message']="not get method"
+
+	return JsonResponse(response)
